@@ -1,0 +1,125 @@
+Disk, File, File Systems
+- Data is stored on physical devices. E.g., disks
+- A file is a logical view of the data, perceived by the programmer
+- A file system
+    - Define how the file system should look to the user
+    - Creating algorithms and data structures to map the logical file system onto the physical storage devices
+
+File Allocation Methods: An allocation method refers to how disk blocks are allocated & organized for files on the disk
+
+File Allocation Methods - Contiguous、
+- Each file occupies set of contiguous blocks
+    Pro
+    - Best performance in most cases (both sequential and random access)
+    - Simple
+    Cons
+    - Finding space for file
+    - Estimating a file size at creation, or growing it
+    - External fragmentation
+    - Compaction
+
+File Allocation Methods - Linked Allocation
+- Each file is a linked list of disk blocks: blocks may be scattered anywhere on the disk.
+    Pros
+    - Simple
+    - Free-space management system
+    - Defragmentation not necessary for file allocation
+    Cons
+    - No random access, locating a block can take many disk seek & I/O
+    - Extra space required for pointers
+    - Reliability: What if a pointer gets corrupted?
+    - Clusters
+
+File Allocation Table
+- Beginning of volume has table indexed by block number
+- Much like a linked list but faster on disk and cacheable
+- New block allocation simple
+
+File Allocation Methods - Indexed Allocation
+- Brings all pointers together into the index block, to allow random access to file blocks
+    Pro
+    - Supports direct access
+    - Prevents external fragmentation
+    Cons
+    - High pointer overhead → Wasted space
+
+Indexed Allocation Address Translation
+- Index block
+    - Too big -> waste of space for small files
+    - Too small -> the size of file will be limited
+- Solutions
+    - Linked scheme
+    - Multilevel index
+    - Combined scheme
+
+Performance
+- Contiguous: great for sequential and random
+- Linked: good for sequential, not random
+- Indexed: more complex
+
+Free-Space Management
+- To keep track of free disk space, the system maintains a free-space list
+- Bit vector requires extra space
+    - Each block is represented by 1 bit
+    - 1: free 0: allocated
+- Linked list
+    - Cannot get contiguous space easily
+    - Requires substantial I/O
+- Grouping
+    - Stores the addresses of n free blocks in the first free block
+    - first n−1 of these blocks are actually free
+    - last block contains the addresses of another n free blocks
+    - Modification of free-list
+    - Store address of n-1 free blocks + next group, in the first free block
+- Counting
+    - Keep the address of the first free block
+    - And the number n of free contiguous blocks that follow it
+
+File System
+- An interface between users and files
+- Provides organized and efficient access to data on secondary storage
+
+File Control Block
+- The file system contains file structure via a File Control Block (FCB)
+- A typical File Control Block
+    - file permissions
+    - file dates
+    - file owner, group
+    - file size
+    - file data blocks or pointers to file data blocks
+
+Directories
+- A way for users to organize their files
+- A directory is typically just a file that happens to contain special metadata
+
+Directories - Signle-level directory structure
+Pros
+    - Simplest form of logical organization: one global or root directory containing all the files
+Cons
+    - Global namespace: unpractical in multiuser systems
+    - No systematic organization, no groups or logical categories of files that belong together
+
+Directories - Two-level directory structure
+Pros
+    - Avoids filename confusion
+
+Cons
+    - Still no grouping. Not satisfactory for users with many files
+
+Directories - Tree-level directory structure
+- Navigation through the tree relies on pathnames
+- Absolute pathnames start from the root
+- Relative pathnames start from current working directory
+
+
+Inode
+- structure maintaining all metadata about a file (or directory), except for name
+- One or more file names can point (link) to the same inode
+
+Soft Link vs Hard Link
+- A hard link creates another file with a link to the same underlying inode
+- A soft link (symbolic link) is a link to another name in the file system
+- The kernel records the number of links to any file/directory.
+- The link count is stored in the inode.
+- The link count is a member of struct stat returned by the stat system call.
+
