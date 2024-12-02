@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Networking Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .option {
+            margin: 10px 0;
+        }
+        .btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        #btn-next:disabled {
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="question" class="question"></div>
+        <div id="options"></div>
+        <div class="btn-group">
+            <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+            <button class="btn" id="btn-next" onclick="nextQuestion()" hidden>Next Question</button>
+        </div>
+        <div id="result" class="result"></div>
+    </div>
+    
+    <script>
+        const quizData = [
+    {
+        "question": "What is the primary goal of virtual memory?",
+        "options": [
+            "Reduce physical memory size",
+            "Separate user and physical memory",
+            "Improve memory speed",
+            "Enable single-tasking"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which concept allows logical address space to be larger than physical address space?",
+        "options": [
+            "Demand paging",
+            "Virtual memory",
+            "Page replacement",
+            "Thrashing"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What enables processes to share memory space?",
+        "options": [
+            "Thrashing",
+            "Virtual memory",
+            "Page faults",
+            "Stack implementation"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which of these is NOT a benefit of demand paging?",
+        "options": [
+            "Less I/O needed",
+            "Faster process creation",
+            "More users supported",
+            "More physical memory required"
+        ],
+        "correct": 3
+    },
+    {
+        "question": "What does the valid/invalid bit indicate in demand paging?",
+        "options": [
+            "Whether the page is modified",
+            "Whether the page is in memory",
+            "The size of the page",
+            "The frame location of the page"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What happens during a page fault?",
+        "options": [
+            "The process is immediately terminated",
+            "The page is brought into memory",
+            "The CPU halts indefinitely",
+            "The page is swapped out of memory"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What does Belady’s Anomaly describe?",
+        "options": [
+            "More frames leading to fewer page faults",
+            "More frames leading to more page faults",
+            "Reduced CPU utilization due to thrashing",
+            "Improved memory access time"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which page replacement algorithm is provably optimal but impractical?",
+        "options": [
+            "FIFO",
+            "LRU",
+            "Optimal",
+            "Second Chance"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is the key principle of LRU replacement?",
+        "options": [
+            "Replace the page used least frequently",
+            "Replace the page used longest ago",
+            "Replace the page used most recently",
+            "Replace pages in a circular order"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the primary drawback of implementing LRU?",
+        "options": [
+            "High memory usage",
+            "Implementation cost",
+            "Suffers from Belady's Anomaly",
+            "Requires additional I/O"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What structure does a stack-based implementation of LRU use?",
+        "options": [
+            "Single linked list",
+            "Double linked list",
+            "Hash table",
+            "Array"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the key advantage of the Second Chance page replacement algorithm?",
+        "options": [
+            "Low memory overhead",
+            "Simpler than LRU",
+            "Does not require a clock hand",
+            "Does not cause thrashing"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which page replacement algorithm considers frequency of usage?",
+        "options": [
+            "Optimal",
+            "FIFO",
+            "Counting Algorithms",
+            "Second Chance"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is the primary issue caused by thrashing?",
+        "options": [
+            "High CPU utilization",
+            "Low CPU utilization",
+            "Reduced I/O operations",
+            "Increased page hits"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What typically triggers thrashing?",
+        "options": [
+            "Processes competing for CPU time",
+            "Overuse of virtual memory resources",
+            "Low I/O operations",
+            "Page replacement algorithms"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the main purpose of the modify (dirty) bit in page replacement?",
+        "options": [
+            "Indicates whether a page is in memory",
+            "Tracks modified pages to reduce swaps",
+            "Indicates page priority",
+            "Tracks access frequency"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "In demand paging, what does the OS do if a valid reference is not in memory?",
+        "options": [
+            "Aborts the process",
+            "Swaps the page into memory",
+            "Halts the CPU",
+            "Removes the page from memory"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the purpose of multiprogramming in virtual memory?",
+        "options": [
+            "Reduce memory fragmentation",
+            "Keep several programs running concurrently",
+            "Increase process speed",
+            "Minimize memory usage"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which algorithm suffers from Belady's Anomaly?",
+        "options": [
+            "FIFO",
+            "Optimal",
+            "LRU",
+            "Second Chance"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Which algorithm arranges pages in a circular structure?",
+        "options": [
+            "LRU",
+            "FIFO",
+            "Second Chance",
+            "Counting Algorithms"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What step follows finding a free frame in page replacement?",
+        "options": [
+            "Evict a victim page",
+            "Update the page and frame tables",
+            "Swap the page into memory",
+            "Restart the process"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "How is the victim page selected in the Optimal algorithm?",
+        "options": [
+            "Least recently used",
+            "Least frequently used",
+            "Oldest page in memory",
+            "Not used for the longest time in the future"
+        ],
+        "correct": 3
+    },
+    {
+        "question": "What does LFU replace?",
+        "options": [
+            "The page used the least recently",
+            "The page used the least frequently",
+            "The page used most recently",
+            "The page used most frequently"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What happens to the page table during a page fault?",
+        "options": [
+            "The valid bit is set to 0",
+            "The valid bit is set to 1",
+            "The page entry is removed",
+            "The page entry is duplicated"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Why does demand paging use valid/invalid bits?",
+        "options": [
+            "To track page modifications",
+            "To indicate memory location",
+            "To signal if a page is in memory",
+            "To count page references"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What does MFU replace?",
+        "options": [
+            "The page used the least recently",
+            "The page used the least frequently",
+            "The page used most frequently",
+            "The page with the highest count"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is a key drawback of counting algorithms?",
+        "options": [
+            "High memory usage",
+            "Implementation complexity",
+            "Belady's anomaly",
+            "Requires external hardware"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "How does the OS determine if a page fault is valid or invalid?",
+        "options": [
+            "By checking the frame table",
+            "By checking another table in the PCB",
+            "By analyzing memory usage",
+            "By querying the CPU scheduler"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the primary challenge of the stack implementation in LRU?",
+        "options": [
+            "High memory overhead",
+            "Complex pointer updates",
+            "Inefficient access time",
+            "Requires extra counters"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What type of overhead does the modify (dirty) bit reduce?",
+        "options": [
+            "Memory allocation",
+            "Page swaps",
+            "CPU scheduling",
+            "Thrashing"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What issue does virtual memory resolve for programmers?",
+        "options": [
+            "CPU scheduling",
+            "Memory allocation complexity",
+            "Hardware interruptions",
+            "High disk latency"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the effect of thrashing on CPU utilization?",
+        "options": [
+            "Increases CPU utilization",
+            "Decreases CPU utilization",
+            "Has no effect on CPU utilization",
+            "Improves process execution speed"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the first step when resolving a page fault?",
+        "options": [
+            "Read the desired page into memory",
+            "Find a free frame",
+            "Update the page table",
+            "Locate the desired page on disk"
+        ],
+        "correct": 3
+    },
+    {
+        "question": "Which algorithm assumes that past behavior predicts future usage?",
+        "options": [
+            "Optimal",
+            "FIFO",
+            "LRU",
+            "MFU"
+        ],
+        "correct": 2
+    }
+];
+
+        //reorder questions
+        for (let i = quizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            document.getElementById("question").innerText = currentQuestion.question;
+
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.createElement("div");
+                optionElement.className = "option";
+                optionElement.innerHTML = `
+                    <label>
+                        <input type="radio" name="option" value="${index}"> ${option}
+                    </label>
+                `;
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            if (!selectedOption) {
+                alert("Please select an answer.");
+                return;
+            }
+
+            const answer = parseInt(selectedOption.value);
+            if (answer === quizData[currentQuestionIndex].correct) {
+                score++;
+                document.getElementById("result").innerText = "Correct!";
+				setTimeout(() => {
+                    document.getElementById("result").innerText = "";
+                    nextQuestion();
+                }, 1500);
+            } else {
+                document.getElementById("result").innerText = "Incorrect. The correct answer was: " + quizData[currentQuestionIndex].options[quizData[currentQuestionIndex].correct];
+				document.getElementById("btn-next").hidden = false;
+            }
+
+            if (currentQuestionIndex >= quizData.length-1) {
+                setTimeout(() => {
+                    document.querySelector(".quiz-container").innerHTML = `<h2>Your Score: ${score} / ${quizData.length}</h2>`;
+                }, 1500);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            document.getElementById("result").innerText = "";
+            loadQuestion();
+            document.getElementById("btn-next").hidden = true;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>

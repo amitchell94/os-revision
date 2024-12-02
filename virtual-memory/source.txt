@@ -1,0 +1,97 @@
+Virtual Memory
+Separation of user logical memory from physical memory
+- Only part of the program needs to be in the memory for execution.
+- Logical address space can therefore be much larger than physical address
+space.
+- Allows address spaces to be shared by several processes.
+- Allows for more efficient process creation
+
+Virtual Memory Goals
+- Making programmers’ job easier
+    - Can write code without knowing how much DRAM is there
+    - Only need to know general memory architecture
+- Enable multiprogramming
+    - Keep several programs running concurrently
+    - Share when possible
+
+Demand Paging
+Bring a page into memory only when it is needed
+- Less I/O needed
+- Less memory needed
+- Faster response
+- More users
+
+Demand Paging - Valid/Invalid Bit
+- With each page table entry, a valid/invalid bit is associated
+    - 0: not-in-memory or invalid
+    - 1: in-memory and legal
+- Initially valid/invalid bit is set to 0 on all entries
+- During address translation, if valid/invalid bit in page table entry is 0,
+it will be considered a page fault and execution will be handed to OS
+
+Demand Paging - Page Fault
+- If there is ever a reference to a page not in memory, first reference will trap to OS
+- OS looks at another table (in PCB) to decide
+    - Invalid reference (out of bounds or etc.) -> Abort the process
+    - Valid reference but not in memory -> Swap-in
+    - Get an empty frame
+    - Swap (read) page into the new frame
+    - Set the page table, and validation bit=1
+    - Restart instruction
+
+Page Replacement
+- Use modify (dirty) bit to reduce overhead of page transfers, only modified pages are swapped out
+- Page replacement completes separation between logical memory and physical memory
+- Prevent over-allocation of memory by modifying page-fault service routine to include page replacement
+- We want lowest page fault rate
+1. Find the location of the desired page on disk
+2. Find a free frame
+    2.1 If there is a free frame, use it
+    2.2 If there is no free frame, use a page replacement algorithm to select a victim
+3. Read the desired page into the [newly] free frame. Update the page and frame tables
+4. Restart the process
+
+Belady’s Anomaly: more frames, more page faults
+
+Page Replacement Algorithms - Optimal
+- Replace page that will not be used for the longest time in future
+- Belady’s optimal algorithm is provably optimal, but it is impossible to predict the future.
+- useful as a reference to compare other algorithms 
+
+Page Replacement Algorithms - FIFO
+- obvious, and simple to implement
+- performance is typically lousy
+- suffers from Belady’s anomaly
+
+Page Replacement Algorithms - LRU
+- Replace the page that has not been used for the longest amount of time in the past
+- Idea past experience gives us a guess of future behavior
+- Implementation too costly
+    - grab a timestamp on every memory reference, then order or search based on the timestamps
+
+Page Replacement - Stack Implementation
+- Keep a stack of page numbers in a double link
+- Page referenced
+    - move it to the top
+    - requires 6 pointers to be changed
+
+Page Replacement Algorithms - Second Chance
+- Replace page that is old enough 
+- Logically, arrange all physical page frames in a big circle
+- A clock hand is used to select a good LRU candidate
+
+Page Replacement - Counting Algorithms
+- Keep a counter of the number of references that have been made to each page
+- Least Frequently Used (LFU)
+    - Replaces page with smallest count
+- Most Frequently Used (MFU)
+    - Based on the argument that the page with the smallest count was probably just brought in and has yet to be used
+
+Thrashing
+- Thrashing occurs when a computer's virtual memory resources are overused
+- cause low CPU utilization
+- happens when a process is busy swapping pages in and out
+
+
+
+
