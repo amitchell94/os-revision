@@ -60,7 +60,7 @@
         <div id="options"></div>
         <div class="btn-group">
             <button class="btn" onclick="submitAnswer()">Submit Answer</button>
-            <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Next Question</button>
+            <button class="btn" id="btn-next" onclick="nextQuestion()" hidden>Next Question</button>
         </div>
         <div id="result" class="result"></div>
     </div>
@@ -456,16 +456,19 @@
             if (answer === quizData[currentQuestionIndex].correct) {
                 score++;
                 document.getElementById("result").innerText = "Correct!";
+				setTimeout(() => {
+                    document.getElementById("result").innerText = "";
+                    nextQuestion();
+                }, 1500);
             } else {
                 document.getElementById("result").innerText = "Incorrect. The correct answer was: " + quizData[currentQuestionIndex].options[quizData[currentQuestionIndex].correct];
+				document.getElementById("btn-next").hidden = false;
             }
 
             if (currentQuestionIndex >= quizData.length-1) {
                 setTimeout(() => {
                     document.querySelector(".quiz-container").innerHTML = `<h2>Your Score: ${score} / ${quizData.length}</h2>`;
                 }, 1500);
-            } else {
-                document.getElementById("btn-next").disabled = false;
             }
         }
 
@@ -473,7 +476,7 @@
             currentQuestionIndex++;
             document.getElementById("result").innerText = "";
             loadQuestion();
-            document.getElementById("btn-next").disabled = true;
+            document.getElementById("btn-next").hidden = true;
         }
 
         loadQuestion();
