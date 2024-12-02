@@ -45,30 +45,384 @@
             font-weight: bold;
             margin-top: 15px;
         }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        #btn-next:disabled {
+            background-color: grey;
+        }
     </style>
 </head>
 <body>
     <div class="quiz-container">
         <div id="question" class="question"></div>
         <div id="options"></div>
-        <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+        <div class="btn-group">
+            <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+            <button class="btn" id="btn-next" onclick="nextQuestion()" disabled>Next Question</button>
+        </div>
         <div id="result" class="result"></div>
     </div>
     
     <script>
         const quizData = [
     {
-        "question": "What does OS stand for?",
+        "question": "What is internal fragmentation?",
         "options": [
-            "Operating System",
-            "Operational Source",
-            "Other System",
-            "Original Source"
+            "Memory space exists to satisfy a request, but it is not contiguous",
+            "Allocated memory may be slightly larger than requested memory",
+            "Memory is divided into fixed-size partitions",
+            "Operating system cannot allocate memory dynamically"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which memory allocation strategy produces the smallest leftover hole?",
+        "options": ["First-fit", "Best-fit", "Worst-fit", "Next-fit"],
+        "correct": 1
+    },
+    {
+        "question": "What is the role of the Memory-Management Unit (MMU)?",
+        "options": [
+            "Manage process execution",
+            "Translate logical addresses to physical addresses",
+            "Allocate memory for processes",
+            "Define virtual address spaces"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What does the base register in address protection do?",
+        "options": [
+            "Indicates the size of legal memory range",
+            "Stores the smallest legal address for a process",
+            "Maps logical addresses to physical addresses",
+            "Defines the segment size"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a segment in memory management?",
+        "options": [
+            "A fixed-size block of memory",
+            "A logical unit like a function or object",
+            "A block of memory allocated dynamically",
+            "A reserved part of memory for system processes"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the main purpose of TLBs in paging?",
+        "options": [
+            "Store large amounts of data",
+            "Map logical addresses to segment numbers",
+            "Speed up address translation by caching page table entries",
+            "Allocate memory dynamically"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is external fragmentation?",
+        "options": [
+            "When allocated memory is larger than requested memory",
+            "When total memory space exists but is not contiguous",
+            "When there is a mismatch between logical and physical addresses",
+            "When memory allocation is optimized dynamically"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What does the 'Next-fit' memory allocation strategy do?",
+        "options": [
+            "Starts each search at the point of the last allocation",
+            "Allocates the largest available hole",
+            "Allocates the smallest available hole",
+            "Always allocates the first available hole"
         ],
         "correct": 0
+    },
+    {
+        "question": "What are frames in the context of paging?",
+        "options": [
+            "Logical memory blocks",
+            "Physical memory blocks",
+            "Segments of logical address space",
+            "Cache entries in the MMU"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the purpose of the Page-table base register (PTBR)?",
+        "options": [
+            "Points to the current segment table",
+            "Stores page offset values",
+            "Points to the page table in main memory",
+            "Maps logical addresses directly to frames"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is the formula for Effective Access Time (EAT)?",
+        "options": [
+            "EAT = α(M + ε) + (1 - α)(2M + ε)",
+            "EAT = (2M + ε) - α",
+            "EAT = M + (α × M)",
+            "EAT = αM + ε(1 - α)"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "Which type of code can be shared among processes in paging?",
+        "options": [
+            "Private code",
+            "Read-only code",
+            "Writeable code",
+            "Dynamic code"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a hole in variable-partition allocation?",
+        "options": [
+            "A fixed-size block of memory",
+            "A block of available memory for allocation",
+            "A logical segment in memory",
+            "A reserved block for system processes"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the primary disadvantage of worst-fit allocation?",
+        "options": [
+            "High search time",
+            "Produces the largest leftover hole",
+            "Low storage utilization",
+            "Requires continuous memory compaction"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "How can external fragmentation be reduced?",
+        "options": [
+            "Using compaction",
+            "Using internal fragmentation",
+            "Switching to fixed-partition allocation",
+            "Implementing larger memory partitions"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What does the segment-table base register (STBR) store?",
+        "options": [
+            "The length of the segment table",
+            "The location of the segment table in memory",
+            "The current logical address",
+            "The base address of a memory block"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What type of memory access occurs when the page is not found in TLB?",
+        "options": [
+            "Page hit",
+            "Page miss",
+            "Logical address fault",
+            "Segmentation fault"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the main benefit of 'Best-fit' allocation?",
+        "options": [
+            "Fast allocation time",
+            "Minimizes leftover memory fragments",
+            "Simplified memory management",
+            "Optimized for process swapping"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "In address binding, what does a linker bind?",
+        "options": [
+            "Symbolic address to relocatable address",
+            "Relocatable address to absolute address",
+            "Logical address to physical address",
+            "Segment number to base register"
+        ],
+        "correct": 1
+    }, {
+        "question": "What is the role of the limit register in address protection?",
+        "options": [
+            "Stores the base address of a process",
+            "Defines the size of the legal memory range",
+            "Checks for segmentation faults",
+            "Maps logical to physical addresses"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the main purpose of address binding?",
+        "options": [
+            "Allocate memory dynamically",
+            "Translate symbolic addresses to physical addresses",
+            "Optimize memory utilization",
+            "Prevent external fragmentation"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which memory allocation strategy typically results in faster allocation?",
+        "options": ["First-fit", "Best-fit", "Worst-fit", "Next-fit"],
+        "correct": 0
+    },
+    {
+        "question": "What does a logical address consist of in segmentation?",
+        "options": [
+            "Segment number and base address",
+            "Segment number and offset",
+            "Page number and offset",
+            "Logical offset and frame"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which memory management technique divides physical memory into frames?",
+        "options": ["Segmentation", "Paging", "Fragmentation", "Compaction"],
+        "correct": 1
+    },
+    {
+        "question": "How many memory accesses are required for a page table lookup without TLB?",
+        "options": ["One", "Two", "Three", "Zero"],
+        "correct": 1
+    },
+    {
+        "question": "What is the purpose of the page-table length register (PTLR)?",
+        "options": [
+            "Stores the base address of the page table",
+            "Defines the size of the page table",
+            "Indicates the total number of frames",
+            "Caches frequently used pages"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What happens when a process tries to access memory outside its base and limit?",
+        "options": [
+            "Memory is allocated dynamically",
+            "The MMU generates a fatal error",
+            "The OS swaps in additional memory",
+            "The process continues execution"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a relocation address?",
+        "options": [
+            "An address in the source module",
+            "A physical memory address",
+            "An intermediate address between symbolic and absolute",
+            "A cached address in the MMU"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is a disadvantage of fixed-partition allocation?",
+        "options": [
+            "Complex implementation",
+            "Potential for internal fragmentation",
+            "Low degree of multiprogramming",
+            "Requires a segment table"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a key characteristic of variable-partition allocation?",
+        "options": [
+            "Memory is divided into equal-sized blocks",
+            "Memory holes are contiguous",
+            "Processes are allocated exactly the memory they need",
+            "Internal fragmentation is common"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What does a page number represent in paging?",
+        "options": [
+            "An offset within a frame",
+            "An index into the page table",
+            "A physical memory address",
+            "A logical address segment"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the hit ratio in the context of TLBs?",
+        "options": [
+            "The time taken to access a page table entry",
+            "The percentage of memory requests found in the TLB",
+            "The number of pages loaded into memory",
+            "The efficiency of memory allocation"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What type of fragmentation can paging eliminate?",
+        "options": ["Internal", "External", "Logical", "Physical"],
+        "correct": 1
+    },
+    {
+        "question": "What is the first step in a paging address translation scheme?",
+        "options": [
+            "Combine the page number and offset",
+            "Lookup the page number in the page table",
+            "Calculate the frame size",
+            "Access the data directly from the frame"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the benefit of shared code in memory management?",
+        "options": [
+            "Reduces memory usage by allowing multiple processes to share the same read-only code",
+            "Allows processes to modify shared code",
+            "Speeds up TLB lookups",
+            "Minimizes paging overhead"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What does compaction aim to achieve?",
+        "options": [
+            "Increase internal fragmentation",
+            "Combine scattered memory holes into a single large hole",
+            "Allocate memory dynamically",
+            "Reduce the size of memory partitions"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What happens on a TLB miss?",
+        "options": [
+            "A segmentation fault occurs",
+            "The MMU retrieves the page table entry from main memory",
+            "The OS allocates a new page",
+            "The process is terminated"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which allocation strategy minimizes the search time for a suitable hole?",
+        "options": ["First-fit", "Best-fit", "Worst-fit", "Next-fit"],
+        "correct": 0
     }
-]
-;
+];
+
+    //reorder questions
+    for (let i = quizData.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+    }
 
         let currentQuestionIndex = 0;
         let score = 0;
@@ -106,18 +460,20 @@
                 document.getElementById("result").innerText = "Incorrect. The correct answer was: " + quizData[currentQuestionIndex].options[quizData[currentQuestionIndex].correct];
             }
 
-            currentQuestionIndex++;
-
-            if (currentQuestionIndex < quizData.length) {
-                setTimeout(() => {
-                    document.getElementById("result").innerText = "";
-                    loadQuestion();
-                }, 1500);
-            } else {
+            if (currentQuestionIndex >= quizData.length-1) {
                 setTimeout(() => {
                     document.querySelector(".quiz-container").innerHTML = `<h2>Your Score: ${score} / ${quizData.length}</h2>`;
                 }, 1500);
+            } else {
+                document.getElementById("btn-next").disabled = false;
             }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            document.getElementById("result").innerText = "";
+            loadQuestion();
+            document.getElementById("btn-next").disabled = true;
         }
 
         loadQuestion();
