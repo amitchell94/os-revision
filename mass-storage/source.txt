@@ -1,0 +1,155 @@
+Overview of Mass Storage Structure
+- Magnetic disks provide bulk of secondary storage of modern computers
+- Solid State Disks becoming more popular
+
+Hierarchical Storage Management
+- Small and frequently used files remain on disk
+- Large, old, inactive files are archived to the jukebox
+- Usually found in supercomputing center that have enormous volumes of data
+
+Disk organization
+- Disk surface
+    - Circular disk coated with magnetic material
+- Tracks
+    - Concentric rings around disk surface
+    - Bits laid out serially along each track
+- Sectors
+    - Each track is split into arc of track
+    - Minimum unit of transfer
+
+Disk Performance Overheads
+- Disk latency: positioning time + transfer time
+- Transfer time: time to transfer data onto/off disk
+- Transfer rate: the rate at which data flows
+- Positioning time (random-access time): time to move disk arm to desired cylinder (seek time) and time for desired sector to rotate under the disk head (rotational latency)
+- Head crash: results from disk head making contact with the disk surface
+
+Disk Scheduling
+- The operating system is responsible for using hardware efficiently
+- Access time has two major components
+    - Seek time is the time for the disk are to move the heads to the cylinder containing the desired sector
+    - Rotational latency is the additional time waiting for the disk to rotate the desired sector to the disk head
+
+Disk Scheduling: FCFS
+- Pros
+    - Fairness among request
+    - In the order applications expect
+- Cons
+    - Arrival may be on random spot on the disk
+    - Long seeks → poor performance
+
+Disk Scheduling: SSTF
+- Selects the request with the minimum seek time from the current head position
+- Pros
+    - Tries to minimize the seek time
+- Cons
+    - SSTF scheduling is a form of SJF(shorest job first) scheduling
+    - May cause starvation
+
+Disk Scheduling: SCAN(elevator algorithm)
+- starts at one end of the disk, and moves toward the other end, servicing requests until it gets to the other end of the disk
+- Pros
+    - Bounded service time for each request
+- Cons
+    - Request at the other end will take a while
+
+Disk Scheduling: C-SCAN
+- The head moves from one end of the disk to the other. servicingrequests as it goes. When it reaches the other end, however, itimmediately returns to the beginning of the disk, without servicing any requests on the return trip.
+- Pros
+    - Provides a more uniform waiting time than SCAN
+- Cons
+    - Does nothing on the return
+
+Disk Scheduling: LOOK
+- Improved version of SCAN
+- Arm only goes as far as the last request in each direction, then reverses direction immediately
+
+Disk Scheduling: C-LOOK
+- Improved version of C-SCAN
+- Arm only goes as far as the last request in its direction, then reverses direction immediately. Seeks to request with smallest track, without first going all the way to the start of the disk
+
+Selecting a Disk Scheduling Algorithm
+- FCFS is a fair algorithm, but may perform very poorly
+- SSTF is common since increases performance over FCFS, but may cause starvation
+- SCAN and C-SCAN perform better for systems that place a heavy load on the disk, prevent starvation
+- LOOK and C-LOOK optimize SCAN and C-SCAN further
+- Either SSTF or LOOK is a reasonable choice for the default algorithm
+
+Storage System Reliability
+- Caching for reads is easy, what about caching writes?
+- Write-through: write change immediately to disk
+- Write-back: delay writing modified data back to disk
+- Single logical file operation can involve updates to multiple physical disk blocks
+- At a physical level, operations complete one at a time
+
+Transaction Concept
+- Transaction is a group of operations with ACID properties
+- Atomic: operations appear to happen as a group, or not at all
+- Consistency: sequential memory mode
+- Isolation: other transactions do not see results of earlier transactions until they are committed
+- Durable: operations that complete stay completed
+
+Transaction Implementation
+- fix problems of how you make multiple updates to disk, by turning multiple updates into a single disk write
+
+RAID
+- Raid schemes improve performance and improve the reliability of the storage system by storing redundant data
+- Data striping: splitting each block of a file across multiple disks
+- Block interleaved parity: Less redundancy
+
+RAID - 0
+- Data is divided into blocks and is spread in a fixed order among all the disks in the array
+Pros
+    - Improves read and write performance via parallel access
+Cons 
+    - Does not provide any fault tolerance
+
+RAID - 1
+- write data to two disks
+Pros
+    - Provides fault tolerance
+    - Improves read performance, Equal or degraded write performance
+Cons
+    - Doubles the storage requirement
+
+RAID - 2
+-  breaks a file into bits and spreads it across multiple disks
+Pros
+    - It provides fault tolerance
+Cons
+    - one of the most inefficient solutions
+    - Overhead slows down data access rates
+    - Almost doubles the storage requirement
+
+RAID - 3
+- It uses byte-level striping
+Pros
+    - Requires one parity disk
+    - Good for long sequential reads
+Cons
+    - Suffers from write bottleneck
+    - Performance for random read is slow, since all disks are synchronized
+
+RAID - 4
+- Similar to RAID level 3, but it employs block-level striping
+Pros
+    - Read performance is improved
+Cons
+    - Suffers from write bottleneck
+    - Not as efficient as RAID level 5
+
+RAID - 5
+    - stripes the data in large blocks
+    - It writes the parity across all the disks
+Pros
+    - The write requests get evenly distributed on disks
+    - Can recover from any single disk failure
+Cons
+    - Write amplification
+
+RAID - 01
+- Combination of RAID 0 & 1
+Pros
+    - Better performance & reliability
+Cons
+    - Doubles the disk storage requirement

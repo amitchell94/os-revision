@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Networking Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .option {
+            margin: 10px 0;
+        }
+        .btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        #btn-next:disabled {
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="question" class="question"></div>
+        <div id="options"></div>
+        <div class="btn-group">
+            <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+            <button class="btn" id="btn-next" onclick="nextQuestion()" hidden>Next Question</button>
+        </div>
+        <div id="result" class="result"></div>
+    </div>
+    
+    <script>
+        const quizData = [
+    {
+        "question": "What is a file from the perspective of a programmer?",
+        "options": [
+            "Physical storage device",
+            "Logical view of data",
+            "File allocation method",
+            "Inode pointer"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which file allocation method achieves the best performance for sequential and random access?",
+        "options": [
+            "Contiguous",
+            "Linked",
+            "Indexed",
+            "Clustered"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What is a major disadvantage of contiguous allocation?",
+        "options": [
+            "Random access is not possible",
+            "High pointer overhead",
+            "External fragmentation",
+            "No direct access"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is a characteristic of linked allocation?",
+        "options": [
+            "Requires compaction",
+            "Has external fragmentation",
+            "Pointers are stored in index blocks",
+            "Blocks can be scattered anywhere"
+        ],
+        "correct": 3
+    },
+    {
+        "question": "What is a key advantage of indexed allocation?",
+        "options": [
+            "Simpler than linked allocation",
+            "Supports random access",
+            "No pointer overhead",
+            "Prevents all fragmentation"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a disadvantage of indexed allocation?",
+        "options": [
+            "Cannot support sequential access",
+            "Causes external fragmentation",
+            "High pointer overhead",
+            "Difficult to grow file sizes"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is the role of a File Control Block (FCB)?",
+        "options": [
+            "Stores metadata about a file",
+            "Allocates disk blocks for files",
+            "Links files into directories",
+            "Manages free disk space"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What does the bit vector method in free-space management require?",
+        "options": [
+            "Pointers for each free block",
+            "Storing one bit per disk block",
+            "Maintaining a file allocation table",
+            "Linking all free blocks"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What type of directory structure uses absolute and relative pathnames?",
+        "options": [
+            "Single-level",
+            "Two-level",
+            "Tree-level",
+            "Flat-level"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is an inode?",
+        "options": [
+            "A block allocation method",
+            "Metadata structure for files",
+            "A type of directory",
+            "Free-space management algorithm"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What does a hard link create?",
+        "options": [
+            "Another pointer to the same inode",
+            "A copy of the file",
+            "A pointer to another filename",
+            "A free-space allocation"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What is a soft link?",
+        "options": [
+            "Another name for a hard link",
+            "A soft link to another file",
+            "An allocation method",
+            "A directory link"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is stored in the inode?",
+        "options": [
+            "File name",
+            "File metadata",
+            "Directory structure",
+            "File allocation table"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Which directory structure avoids filename confusion but lacks grouping?",
+        "options": [
+            "Single-level",
+            "Two-level",
+            "Tree-level",
+            "Flat-level"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a disadvantage of a single-level directory structure?",
+        "options": [
+            "File names can be grouped",
+            "Navigation is too complex",
+            "It is unpractical in multiuser systems",
+            "Cannot store metadata"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What does the grouping method in free-space management store?",
+        "options": [
+            "All addresses of free blocks",
+            "Addresses of n free blocks",
+            "Contiguous block addresses",
+            "Pointer chains to free blocks"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What allocation method combines pointers in an index block with a linked list?",
+        "options": [
+            "Contiguous",
+            "Multilevel index",
+            "Combined scheme",
+            "Counting"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What does the link count in an inode represent?",
+        "options": [
+            "The size of the file",
+            "The number of hard links",
+            "The number of directories",
+            "The total number of files"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the main disadvantage of the linked allocation method?",
+        "options": [
+            "High pointer overhead",
+            "No random access",
+            "External fragmentation",
+            "Requires large index blocks"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is a key benefit of the tree-level directory structure?",
+        "options": [
+            "Easy global namespace",
+            "Supports grouping of files",
+            "Simple navigation",
+            "Uses a flat namespace"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What is the main purpose of a file system?",
+        "options": [
+            "Organize and efficiently access data",
+            "Allocate disk space for files",
+            "Create disk blocks for files",
+            "Manage inode pointers"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What is a characteristic of a soft link?",
+        "options": [
+            "Points to the inode",
+            "Points to a filename",
+            "Requires the file system to store metadata",
+            "Is more efficient than a hard link"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What happens when a pointer in a linked allocation gets corrupted?",
+        "options": [
+            "Data becomes inaccessible",
+            "File becomes fragmented",
+            "Random access is still possible",
+            "Disk blocks can still be reused"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What is a disadvantage of a soft link?",
+        "options": [
+            "Cannot link across file systems",
+            "Depends on the target file name",
+            "Takes more disk space",
+            "Is slower than a hard link"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "How does the multilevel index allocation scheme improve flexibility?",
+        "options": [
+            "By using pointers to contiguous blocks",
+            "By allowing dynamic file growth",
+            "By providing hierarchical index blocks",
+            "By reducing overhead for small files"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What is an advantage of the linked scheme in indexed allocation?",
+        "options": [
+            "Allows random access",
+            "Minimizes space overhead",
+            "Supports direct file growth",
+            "Prevents external fragmentation"
+        ],
+        "correct": 3
+    },
+    {
+        "question": "What kind of directory navigation uses a current working directory as a reference point?",
+        "options": [
+            "Absolute",
+            "Relative",
+            "Global",
+            "Linked"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "What does a file control block NOT typically store?",
+        "options": [
+            "File permissions",
+            "File data blocks",
+            "Directory hierarchy",
+            "File dates"
+        ],
+        "correct": 2
+    },
+    {
+        "question": "What free-space management method stores the number of free contiguous blocks?",
+        "options": [
+            "Bit vector",
+            "Counting",
+            "Grouping",
+            "Linked list"
+        ],
+        "correct": 1
+    },
+    {
+        "question": "Why might indexed allocation waste space for small files?",
+        "options": [
+            "Due to large index block overhead",
+            "Requires contiguous storage",
+            "Increases fragmentation",
+            "Does not support direct access"
+        ],
+        "correct": 0
+    },
+    {
+        "question": "What is the main drawback of using a linked list for free-space management?",
+        "options": [
+            "Requires extra space for pointers",
+            "No random access, locating a block can take many disk seeks & I/O",
+            "Requires contiguous space allocation",
+            "Increases fragmentation over time"
+        ],
+        "correct": 1
+    }
+];
+
+        //reorder questions
+        for (let i = quizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            document.getElementById("question").innerText = currentQuestion.question;
+
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.createElement("div");
+                optionElement.className = "option";
+                optionElement.innerHTML = `
+                    <label>
+                        <input type="radio" name="option" value="${index}"> ${option}
+                    </label>
+                `;
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            if (!selectedOption) {
+                alert("Please select an answer.");
+                return;
+            }
+
+            const answer = parseInt(selectedOption.value);
+            if (answer === quizData[currentQuestionIndex].correct) {
+                score++;
+                document.getElementById("result").innerText = "Correct!";
+				setTimeout(() => {
+                    document.getElementById("result").innerText = "";
+                    nextQuestion();
+                }, 1500);
+            } else {
+                document.getElementById("result").innerText = "Incorrect. The correct answer was: " + quizData[currentQuestionIndex].options[quizData[currentQuestionIndex].correct];
+				document.getElementById("btn-next").hidden = false;
+            }
+
+            if (currentQuestionIndex >= quizData.length-1) {
+                setTimeout(() => {
+                    document.querySelector(".quiz-container").innerHTML = `<h2>Your Score: ${score} / ${quizData.length}</h2>`;
+                }, 1500);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            document.getElementById("result").innerText = "";
+            loadQuestion();
+            document.getElementById("btn-next").hidden = true;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
