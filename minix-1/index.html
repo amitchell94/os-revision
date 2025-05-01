@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Networking Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .quiz-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            width: 400px;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+        }
+        .option {
+            margin: 10px 0;
+        }
+        .btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        #btn-next:disabled {
+            background-color: grey;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="question" class="question"></div>
+        <div id="options"></div>
+        <div class="btn-group">
+            <button class="btn" onclick="submitAnswer()">Submit Answer</button>
+            <button class="btn" id="btn-next" onclick="nextQuestion()" hidden>Next Question</button>
+        </div>
+        <div id="result" class="result"></div>
+    </div>
+    
+    <script>
+        const quizData = [
+  {
+    "question": "Many disks contain an ECC at the end of each sector. If the ECC is wrong, what actions might be taken and by which piece of hardware or software?",
+    "options": [
+      "Disk controller corrects the error and retries the read",
+      "OS kernel ignores the error and returns garbage",
+      "User-level driver applies a software fix",
+      "BIOS displays an error message to the user"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "What is memory-mapped I/O? Why is it sometimes used?",
+    "options": [
+      "Using special I/O instructions instead of normal loads/stores",
+      "Mapping device registers into the system address space",
+      "Allocating DMA buffers in high-memory only",
+      "Running I/O over a network protocol stack"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Explain what DMA is and why it is used.",
+    "options": [
+      "A CPU mode for faster instruction execution",
+      "A polling method for I/O status checking",
+      "A mechanism for devices to transfer data without CPU intervention",
+      "A network protocol for direct memory access"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Although DMA does not use the CPU, the maximum transfer rate is still limited. Consider reading a block from the disk. Name three factors that might ultimately limit the rate of transfer.",
+    "options": [
+      "CPU cache size, OS scheduler latency, user-process priority",
+      "File-system block size, directory lookup time, file permissions",
+      "Bus bandwidth, disk rotational speed, DMA controller throughput",
+      "Virtual memory page fault rate, TLB size, process context-switch time"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "An alternative to interrupts is polling. Are there any circumstances you can think of in which polling is a better choice?",
+    "options": [
+      "When real-time interrupt latency must be minimized",
+      "When DMA is the only supported mechanism",
+      "When device drivers run in user space",
+      "When I/O events are very frequent and deterministic"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "Disk controllers have internal buffers and they are getting larger with each new model. Why?",
+    "options": [
+      "To buffer more data and reduce the number of CPU interrupts",
+      "To increase mechanical seek times",
+      "To slow down data transfer for stability",
+      "To reduce cache hit rates"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Each device driver has two different interfaces with the operating system. One interface is a set of function calls that the operating system makes on the driver. The other is a set of calls that the driver makes on the operating system. Name one likely call in each interface.",
+    "options": [
+      "OS calls open_file(); driver calls write_file()",
+      "OS calls malloc(); driver calls free()",
+      "OS calls read_block(); driver calls signal_io_complete()",
+      "OS calls fork(); driver calls exec()"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Why do operating system designers attempt to provide device-independent I/O wherever it is possible?",
+    "options": [
+      "To increase device-specific code complexity",
+      "To prevent user processes from performing I/O",
+      "To allow uniform access to different hardware devices",
+      "To avoid using higher-level abstractions"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "Computing the track, sector, and head for a disk read. In which of the four I/O software layers is this done?",
+    "options": [
+      "User process",
+      "Logical I/O (file system)",
+      "Device-independent I/O",
+      "Device driver"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Maintaining a cache of recently used blocks. In which of the four I/O software layers is this done?",
+    "options": [
+      "User process",
+      "Logical I/O (file system)",
+      "Device-independent I/O",
+      "Device driver"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Writing commands to the device registers. In which of the four I/O software layers is this done?",
+    "options": [
+      "User process",
+      "Logical I/O (file system)",
+      "Device-independent I/O",
+      "Device driver"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "Checking to see if the user is permitted to use the device. In which of the four I/O software layers is this done?",
+    "options": [
+      "User process",
+      "Logical I/O (file system)",
+      "Device-independent I/O",
+      "Device driver"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "Converting binary integers to ASCII for printing. In which of the four I/O software layers is this done?",
+    "options": [
+      "User process",
+      "Logical I/O (file system)",
+      "Device-independent I/O",
+      "Device driver"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Why are output files for the printer normally spooled on disk before being printed?",
+    "options": [
+      "To ensure one process doesn't tie up the printer if it is blocked.",
+      "To back up print jobs in case of power failure",
+      "To compress the output for faster transmission",
+      "To encrypt the data before printing"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Give an example of a deadlock that could occur in the physical world.",
+    "options": [
+      "Two people sharing a single tool in a workshop",
+      "An elevator moving up and down continuously",
+      "Two cars meeting head-on on a one-lane bridge and neither can back up",
+      "A train hitting the end of a buffer stop"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "A computer has six tape drives, with n processes competing for them. Each process may need two drives. For which values of n is the system deadlock free?",
+    "options": [
+      "n ≤ 4",
+      "n ≤ 3",
+      "n ≤ 2",
+      "n ≤ 6"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "Can a system be in a state that is neither deadlocked nor safe?",
+    "options": [
+      "No, every state is either safe or deadlocked",
+      "Only if circular wait is prevented",
+      "Yes, for example if the banker’s algorithm reports safe but a cycle exists",
+      "Only in distributed systems"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "In a mailbox‐based distributed IPC with blocking RECEIVE specifying a sender, is deadlock possible?",
+    "options": [
+      "Yes, if processes block waiting on each other’s messages",
+      "No, because there are no shared resources",
+      "Only if messages are lost",
+      "Only with synchronous channels"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "In the electronic funds transfer system where each process locks two accounts to transfer money, which scheme avoids deadlock without releasing an account prematurely?",
+    "options": [
+      "Always lock the account with the smaller account number first",
+      "Lock both accounts simultaneously via a two-phase commit",
+      "Use a random backoff and retry if lock fails",
+      "Allow preemption of one account lock"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "In the banker’s algorithm with m resource classes and n processes, the safety-check cost grows as O(m^a n^b). What are a and b?",
+    "options": [
+      "a = 1, b = 1",
+      "a = 2, b = 1",
+      "a = 1, b = 2",
+      "a = 2, b = 2"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "For a disk with 1000 × 512-byte sectors/track and 10 ms rotation, what is the maximum burst rate and how long can it last?",
+    "options": [
+      "51.2 MB/s, lasting one revolution (10 ms)",
+      "45 MB/s, lasting eight tracks (80 ms)",
+      "10 MB/s, lasting 100 ms",
+      "100 MB/s, lasting 1 ms"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "In the described LAN data path (copy × 2, transmit at 10 Mb/s, interrupt + copy × 1), what is the max rate one process can pump data?",
+    "options": [
+      "≈0.2 MB/s",
+      "≈1.25 MB/s",
+      "≈10 MB/s",
+      "≈0.02 MB/s"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "28: Given requests to cylinders 10, 22, 20, 2, 40, 6, 38 (start = 20), seek = 6 ms/cylinder, what total seek time is needed for FCFS, SSTF, and elevator?",
+    "options": [
+      "FCFS: 500 ms; SSTF: 200 ms; Elevator: 300 ms",
+      "FCFS: 876 ms; SSTF: 720 ms; Elevator: 560 ms",
+      "FCFS: 600 ms; SSTF: 156 ms; Elevator: 480 ms",
+      "FCFS: 876 ms; SSTF: 156 ms; Elevator: 348 ms"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "The PC salesman’s disk with elevator + cylinder-ordering queue performed like FCFS under random reads. Was he lying?",
+    "options": [
+      "Yes, the algorithm was not implemented",
+      "No, but only on SSDs",
+      "No, random access cancels the benefit of reordering",
+      "Yes, the queue length was too short"
+    ],
+    "correct": 2
+  },
+  {
+    "question": "A UNIX process has user and kernel parts. Is the kernel part like a subroutine or a coroutine?",
+    "options": [
+      "Subroutine",
+      "Coroutine",
+      "Thread",
+      "Interrupt handler"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "The clock interrupt handler takes 2 ms at 60 Hz. What fraction of the CPU is devoted to the clock?",
+    "options": [
+      "12%",
+      "2%",
+      "6%",
+      "0.2%"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Besides floppy spin-up and carriage return timing, which is another example of a watchdog timer?",
+    "options": [
+      "Network adapter timeout",
+      "Keyboard debounce interval",
+      "Printer line-feed timing",
+      "Display refresh rate"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Why are RS-232 terminals interrupt driven, but memory-mapped terminals not?",
+    "options": [
+      "RS-232 is slow so polling would waste CPU",
+      "Memory-mapped terminals cannot generate interrupts",
+      "RS-232 uses DMA instead",
+      "Memory-mapped is serial, RS-232 is parallel"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "If each character I/O cycle takes 4 ms, does this method work on 110-baud and 4800-baud lines?",
+    "options": [
+      "Works on both 110 and 4800 baud",
+      "Works on 110 baud only",
+      "Works on 4800 baud only",
+      "Works on neither"
+    ],
+    "correct": 1
+  },
+  {
+    "question": "For a 66×80-char window (8×12 px/char) on a 1200×800-pixel bitmap, at 500 ns/byte, how long to scroll and what is the equivalent baud? And in color (4 bpp, 200 µs/char)?",
+    "options": [
+      "31.7 ms (≈2 MB/s); 127 ms (≈0.5 MB/s)",
+      "63 ms (≈1 MB/s); 254 ms (≈0.25 MB/s)",
+      "100 ms (≈0.64 MB/s); 400 ms (≈0.16 MB/s)",
+      "10 ms (≈6 MB/s); 40 ms (≈1.5 MB/s)"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "Why do operating systems provide escape characters such as Ctrl-V in MINIX?",
+    "options": [
+      "To allow the next character to be taken literally",
+      "To trigger a system panic",
+      "To switch to raw mode",
+      "To lock terminal input"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "After Ctrl-C (SIGINT), why does the MINIX driver discard all output currently queued for that terminal?",
+    "options": [
+      "To prevent stale output from appearing after an interrupt",
+      "To flush the driver’s internal buffers",
+      "To reset the hardware registers",
+      "To log the error for debugging"
+    ],
+    "correct": 0
+  },
+  {
+    "question": "How is the terminal’s line-delete (escape sequence) feature implemented inside the terminal?",
+    "options": [
+      "By reloading the firmware microcode",
+      "By sending a new cursor position to the host",
+      "By using a software driver routine",
+      "By shifting lines in the terminal’s video RAM"
+    ],
+    "correct": 3
+  },
+  {
+    "question": "A computer system has enough room to hold four programs in its main memory. These programs are each idle half the time waiting for I/O. What fraction of the CPU time is wasted?",
+    "options": [
+      "",
+      "",
+      "The chance that all four processes are idle is 1/16, so the CPU idle time is 1/16.",
+      ""
+    ],
+    "correct": 2
+  },
+  {
+    "question": "What is the difference between a physical address and a virtual address?",
+    "options": [
+      "",
+      "Real memory uses physical addresses. Virtual addresses are the logical addresses that refer to a process’ address space",
+      "",
+      ""
+    ],
+    "correct": 1
+  },
+  {
+    "question": "If an instruction takes 1 nsec and a page fault takes an additional n nsec, give a formula for the effective instruction time if page faults occur every k instructions.",
+    "options": [
+      "",
+      "",
+      "",
+      "A page fault every k instructions adds an overhead of n/k nsec to the average, so the instruction takes 1 + n/k nsec."
+    ],
+    "correct": 3
+  },
+  {
+    "question": "Suppose that a 32-bit virtual address is broken up into four fields, a, b, c, and d. The first three are used for a three-level page table system. The fourth field, d, is the offset. Does the number of pages depend on the sizes of all four fields? If not, which ones matter and which ones do not?",
+    "options": [
+      "The number of pages depends on the total number of bits in a, b, and c combined. How they are split among the fields does not matter.",
+      "",
+      "",
+      ""
+    ],
+    "correct": 0
+  },
+  
+  
+];
+
+        //reorder questions
+        for (let i = quizData.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [quizData[i], quizData[j]] = [quizData[j], quizData[i]];
+        }
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function loadQuestion() {
+            const currentQuestion = quizData[currentQuestionIndex];
+            document.getElementById("question").innerText = currentQuestion.question;
+
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+            currentQuestion.options.forEach((option, index) => {
+                const optionElement = document.createElement("div");
+                optionElement.className = "option";
+                optionElement.innerHTML = `
+                    <label>
+                        <input type="radio" name="option" value="${index}"> ${option}
+                    </label>
+                `;
+                optionsContainer.appendChild(optionElement);
+            });
+        }
+
+        function submitAnswer() {
+            const selectedOption = document.querySelector('input[name="option"]:checked');
+            if (!selectedOption) {
+                alert("Please select an answer.");
+                return;
+            }
+
+            const answer = parseInt(selectedOption.value);
+            if (answer === quizData[currentQuestionIndex].correct) {
+                score++;
+                document.getElementById("result").innerText = "Correct!";
+				setTimeout(() => {
+                    document.getElementById("result").innerText = "";
+                    nextQuestion();
+                }, 1500);
+            } else {
+                document.getElementById("result").innerText = "Incorrect. The correct answer was: " + quizData[currentQuestionIndex].options[quizData[currentQuestionIndex].correct];
+				document.getElementById("btn-next").hidden = false;
+            }
+
+            if (currentQuestionIndex >= quizData.length-1) {
+                setTimeout(() => {
+                    document.querySelector(".quiz-container").innerHTML = `<h2>Your Score: ${score} / ${quizData.length}</h2>`;
+                }, 1500);
+            }
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            document.getElementById("result").innerText = "";
+            loadQuestion();
+            document.getElementById("btn-next").hidden = true;
+        }
+
+        loadQuestion();
+    </script>
+</body>
+</html>
